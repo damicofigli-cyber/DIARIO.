@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Diario">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#14171C">
+<title>Diario</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14171C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2314171C'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Georgia,serif' fill='%23C9A15D' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2314171C'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Georgia,serif' fill='%23C9A15D' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14171C;
+    --surface:#1C2128;
+    --surface-raised:#232933;
+    --line:#2B313C;
+    --ink:#EDEAE3;
+    --ink-dim:#8B92A0;
+    --ink-faint:#565D6B;
+    --gold:#C9A15D;
+    --gold-dim:#8A7448;
+    --c-anime:#E0785F;
+    --c-serie:#6FA3D8;
+    --c-film:#A78FD1;
+    --c-animate:#7FB88A;
+    --c-manga:#D9A63E;
+    --c-libri:#5FBDB5;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overscroll-behavior-y:none;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .serif{font-family:'Fraunces',Georgia,serif;}
+  ::selection{background:var(--gold-dim); color:#fff;}
+  a{color:inherit;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  /* header */
+  header{
+    padding:22px 20px 4px;
+    position:sticky; top:0; z-index:5;
+    background:linear-gradient(var(--bg) 78%, transparent);
+  }
+  .title-row{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px;}
+  h1{
+    font-family:'Fraunces',Georgia,serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    letter-spacing:0.2px;
+  }
+  .count{font-size:13px; color:var(--ink-faint); font-variant-numeric:tabular-nums;}
+
+  .view-toggle{display:flex; gap:20px; margin-bottom:12px;}
+  .view-tab{
+    background:none; border:none; color:var(--ink-faint);
+    font-family:'Inter'; font-weight:500; font-size:13.5px;
+    padding:2px 0 8px; cursor:pointer; position:relative;
+  }
+  .view-tab.active{color:var(--ink);}
+  .view-tab.active::after{
+    content:''; position:absolute; left:0; right:0; bottom:0; height:2px;
+    background:var(--gold); border-radius:1px;
+  }
+
+  .years{
+    display:flex; gap:2px; overflow-x:auto; scrollbar-width:none;
+    border-bottom:1px solid var(--line);
+  }
+  .years::-webkit-scrollbar{display:none;}
+  .year-tab{
+    flex:0 0 auto;
+    background:none; border:none;
+    color:var(--ink-faint);
+    font-family:'Fraunces',Georgia,serif;
+    font-size:17px;
+    padding:8px 14px 12px;
+    cursor:pointer;
+    position:relative;
+    transition:color .2s;
+  }
+  .year-tab.active{color:var(--ink);}
+  .year-tab.active::after{
+    content:'';
+    position:absolute; left:14px; right:14px; bottom:-1px; height:2px;
+    background:var(--gold);
+    border-radius:1px;
+  }
+  .year-add{
+    flex:0 0 auto;
+    background:none; border:none;
+    color:var(--ink-faint);
+    font-size:18px;
+    padding:8px 12px 12px;
+    cursor:pointer;
+  }
+
+  .cats{
+    display:flex; gap:16px; overflow-x:auto; scrollbar-width:none;
+    padding:14px 20px 12px;
+  }
+  .cats::-webkit-scrollbar{display:none;}
+  .cat-pill{
+    flex:0 0 auto;
+    display:flex; align-items:center; gap:6px;
+    background:none; border:none;
+    color:var(--ink-dim);
+    font-family:'Inter'; font-size:13.5px; font-weight:500;
+    padding:5px 2px;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    transition:color .2s, border-color .2s;
+    white-space:nowrap;
+  }
+  .cat-pill .dot{width:6px; height:6px; border-radius:50%; flex:0 0 auto;}
+  .cat-pill.active{color:var(--ink); border-bottom-color:var(--dotcolor, var(--gold));}
+
+  /* list */
+  main{padding:4px 20px 120px;}
+  .empty{
+    text-align:center;
+    padding:70px 24px 40px;
+    color:var(--ink-faint);
+  }
+  .empty .serif{font-size:19px; color:var(--ink-dim); display:block; margin-bottom:6px;}
+  .empty small{font-size:13px; line-height:1.6; display:block; max-width:260px; margin:0 auto;}
+
+  .row{
+    display:flex; align-items:center; gap:13px;
+    padding:12px 4px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    -webkit-user-select:none; user-select:none;
+    transition:background .15s;
+  }
+  .row:active{background:var(--surface);}
+  .cover{
+    width:44px; height:60px; border-radius:6px;
+    flex:0 0 auto;
+    object-fit:cover;
+    background:var(--surface-raised);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-size:20px; color:var(--ink);
+    box-shadow:0 1px 0 rgba(0,0,0,.3);
+    overflow:hidden;
+    border-left:3px solid var(--catcolor, var(--gold));
+  }
+  .cover img{width:100%; height:100%; object-fit:cover; display:block;}
+  .row-body{flex:1 1 auto; min-width:0;}
+  .row-title{
+    font-family:'Fraunces',Georgia,serif;
+    font-size:16.5px;
+    font-weight:500;
+    color:var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .row-meta{
+    display:flex; align-items:center; gap:7px;
+    margin-top:3px;
+    font-size:12.5px;
+    color:var(--ink-dim);
+  }
+  .row-meta .catname{color:var(--catcolor, var(--ink-dim));}
+  .row-meta .sep{color:var(--ink-faint);}
+  .row-updated{font-size:11px; color:var(--ink-faint); margin-top:2px;}
+  .done-mark{
+    width:16px; height:16px; border-radius:50%;
+    border:1.4px solid var(--ink-faint);
+    flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .done-mark.on{background:var(--gold); border-color:var(--gold);}
+  .done-mark.on::after{content:''; width:5px; height:8px; border-right:1.6px solid #14171C; border-bottom:1.6px solid #14171C; transform:rotate(45deg) translate(-1px,-1px);}
+  .bump{
+    flex:0 0 auto;
+    width:26px; height:26px; border-radius:50%;
+    background:var(--surface-raised);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-size:15px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .bump:active{transform:scale(0.9); background:var(--gold-dim); color:#fff;}
+
+  /* fab */
+  .fab{
+    position:fixed; right:20px; bottom:calc(24px + env(safe-area-inset-bottom));
+    width:54px; height:54px; border-radius:50%;
+    background:var(--gold); color:#14171C;
+    border:none; font-size:26px; font-weight:400;
+    box-shadow:0 6px 18px rgba(0,0,0,.4);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    z-index:20;
+    transition:transform .15s;
+  }
+  .fab:active{transform:scale(0.92);}
+
+  /* sheet */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(10,12,15,.6);
+    opacity:0; pointer-events:none; transition:opacity .25s;
+    z-index:30;
+  }
+  .backdrop.show{opacity:1; pointer-events:auto;}
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--surface);
+    border-radius:20px 20px 0 0;
+    padding:10px 20px calc(24px + env(safe-area-inset-bottom));
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+    z-index:31;
+    max-height:88vh; overflow-y:auto;
+    border-top:1px solid var(--line);
+  }
+  .sheet.show{transform:translateY(0);}
+  .sheet-handle{width:36px; height:4px; border-radius:2px; background:var(--line); margin:6px auto 16px;}
+  .sheet h2{font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:0 0 18px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:12.5px; color:var(--ink-dim); margin-bottom:7px;}
+  .field input, .field select{
+    width:100%; background:var(--surface-raised); border:1px solid var(--line);
+    color:var(--ink); border-radius:10px; padding:11px 12px;
+    font-family:'Inter'; font-size:15px;
+    -webkit-appearance:none; appearance:none;
+  }
+  .field input:focus, .field select:focus{outline:none; border-color:var(--gold-dim);}
+  .seg{display:flex; flex-wrap:wrap; gap:7px;}
+  .seg button{
+    background:var(--surface-raised); border:1px solid var(--line); color:var(--ink-dim);
+    padding:8px 13px; border-radius:9px; font-size:13.5px; font-family:'Inter'; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .seg button .dot{width:6px; height:6px; border-radius:50%;}
+  .seg button.on{color:var(--ink); border-color:var(--segcolor, var(--gold)); background:var(--surface-raised);}
+  .row2{display:flex; gap:10px;}
+  .row2 .field{flex:1;}
+  .sheet-actions-secondary{display:flex; gap:10px; margin-bottom:10px;}
+  .sheet-actions-secondary button{flex:1;}
+  .sheet-actions{display:flex; gap:10px; margin-top:6px;}
+  .btn-primary{
+    flex:1; background:var(--gold); color:#14171C; border:none; border-radius:10px;
+    padding:13px; font-size:15px; font-weight:600; font-family:'Inter'; cursor:pointer;
+  }
+  .btn-primary:active{opacity:.85;}
+  .btn-ghost{
+    background:none; border:1px solid var(--line); color:var(--ink-dim);
+    border-radius:10px; padding:13px 16px; font-size:14px; font-family:'Inter'; cursor:pointer;
+  }
+  .btn-delete{color:#D08A7A; border-color:#3A2A26;}
+  .btn-move{color:var(--gold); border-color:var(--gold-dim);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-row">
+    <h1>Diario</h1>
+    <span class="count" id="yearCount"></span>
+  </div>
+  <div class="view-toggle" id="viewToggle">
+    <button class="view-tab" data-v="diario">Visti</button>
+    <button class="view-tab" data-v="watch">Da vedere</button>
+  </div>
+  <div class="years" id="years"></div>
+  <div class="cats" id="cats"></div>
+</header>
+
+<main id="list"></main>
+
+<button class="fab" id="fabAdd" aria-label="Aggiungi">+</button>
+
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <h2 id="sheetTitle">Nuovo titolo</h2>
+  <div class="field">
+    <label>Titolo</label>
+    <input type="text" id="fTitolo" placeholder="Es. One Piece" autocomplete="off">
+  </div>
+  <div class="field">
+    <label>Categoria</label>
+    <div class="seg" id="fCategoria"></div>
+  </div>
+  <div class="field">
+    <label>Copertina</label>
+    <input type="url" id="fCover" placeholder="Incolla un link se il logo non si carica da solo" autocomplete="off">
+  </div>
+  <div class="row2" id="fProgressRow"></div>
+  <div class="field" id="fStatoField">
+    <label>Stato</label>
+    <div class="seg" id="fStato"></div>
+  </div>
+  <div class="sheet-actions-secondary" id="secondaryActions">
+    <button class="btn-ghost btn-move" id="btnMove" style="display:none;">Sposta nel Diario</button>
+    <button class="btn-ghost btn-delete" id="btnDelete" style="display:none;">Elimina</button>
+  </div>
+  <div class="sheet-actions">
+    <button class="btn-ghost" id="btnCancel">Annulla</button>
+    <button class="btn-primary" id="btnSave">Salva</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CATS = [
+    {id:'anime',   label:'Anime',         color:'var(--c-anime)',   progress:'ep'},
+    {id:'serie',   label:'Serie TV',      color:'var(--c-serie)',   progress:'ep'},
+    {id:'film',    label:'Film',          color:'var(--c-film)',    progress:'none'},
+    {id:'animate', label:'Serie animate', color:'var(--c-animate)', progress:'ep'},
+    {id:'manga',   label:'Manga',         color:'var(--c-manga)',   progress:'cap'},
+    {id:'libri',   label:'Libri',         color:'var(--c-libri)',   progress:'pag'}
+  ];
+  function catById(id){ for(var i=0;i<CATS.length;i++) if(CATS[i].id===id) return CATS[i]; return CATS[0]; }
+
+  var STORE_KEY = 'diario-media-v1';
+  var state = load();
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { years:[2024], activeYear:2024, activeCat:'all', view:'diario', entries:[] };
+  }
+  function save(){
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  }
+  if(!state.view) state.view = 'diario';
+  // riempie eventuali anni mancanti tra il primo anno salvato e l'anno corrente
+  (function fillYearGaps(){
+    var thisYear = new Date().getFullYear();
+    var minY = Math.min.apply(null, state.years.concat([2024]));
+    var maxY = Math.max.apply(null, state.years.concat([thisYear]));
+    var full = [];
+    for(var y = minY; y <= maxY; y++) full.push(y);
+    state.years = full;
+  })();
+  if(state.years.indexOf(state.activeYear) === -1) state.activeYear = state.years[0];
+
+  // ---------- long press (tenere premuto per eliminare) ----------
+  function addLongPress(el, onLongPress){
+    var timer=null, moved=false, sx=0, sy=0;
+    var supp = { value:false };
+    function start(x,y){
+      moved = false; sx = x; sy = y;
+      timer = setTimeout(function(){
+        if(!moved){
+          supp.value = true;
+          if(navigator.vibrate) navigator.vibrate(15);
+          onLongPress();
+        }
+      }, 550);
+    }
+    function move(x,y){
+      if(Math.abs(x-sx)>10 || Math.abs(y-sy)>10){ moved = true; clearTimeout(timer); }
+    }
+    function cancel(){ clearTimeout(timer); }
+    el.addEventListener('touchstart', function(e){ var t=e.touches[0]; start(t.clientX,t.clientY); }, {passive:true});
+    el.addEventListener('touchmove', function(e){ var t=e.touches[0]; move(t.clientX,t.clientY); }, {passive:true});
+    el.addEventListener('touchend', cancel);
+    el.addEventListener('touchcancel', cancel);
+    el.addEventListener('mousedown', function(e){ start(e.clientX,e.clientY); });
+    el.addEventListener('mousemove', function(e){ move(e.clientX,e.clientY); });
+    el.addEventListener('mouseup', cancel);
+    el.addEventListener('mouseleave', cancel);
+    el.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+    return supp;
+  }
+
+  function deleteYear(y){
+    if(!window.confirm('Eliminare l\u2019anno ' + y + ' e tutti i titoli che contiene?')) return;
+    state.years = state.years.filter(function(yy){ return yy !== y; });
+    state.entries = state.entries.filter(function(e){ return e.anno !== y; });
+    if(state.years.length === 0){ state.years = [new Date().getFullYear()]; }
+    if(state.activeYear === y){ state.activeYear = state.years[0]; }
+    save(); renderAll();
+  }
+
+  function confirmDeleteEntry(e){
+    if(!window.confirm('Eliminare "' + e.titolo + '"?')) return;
+    state.entries = state.entries.filter(function(x){ return x.id !== e.id; });
+    save(); renderList();
+  }
+
+  document.querySelectorAll('.view-tab').forEach(function(b){
+    b.onclick = function(){ state.view = b.getAttribute('data-v'); save(); renderAll(); };
+  });
+
+  // ---------- rendering: years ----------
+  function renderYears(){
+    var el = document.getElementById('years');
+    el.style.display = state.view === 'diario' ? 'flex' : 'none';
+    el.innerHTML = '';
+    state.years.slice().sort(function(a,b){return a-b;}).forEach(function(y){
+      var b = document.createElement('button');
+      b.className = 'year-tab' + (y===state.activeYear?' active':'');
+      b.textContent = y;
+      var supp = addLongPress(b, function(){ deleteYear(y); });
+      b.onclick = function(){
+        if(supp.value){ supp.value = false; return; }
+        state.activeYear = y; save(); renderAll();
+      };
+      el.appendChild(b);
+    });
+    var add = document.createElement('button');
+    add.className = 'year-add';
+    add.textContent = '+';
+    add.onclick = function(){
+      var max = Math.max.apply(null, state.years);
+      var ny = max + 1;
+      state.years.push(ny);
+      state.activeYear = ny;
+      save(); renderAll();
+    };
+    el.appendChild(add);
+  }
+
+  // ---------- rendering: category filter ----------
+  function renderCats(){
+    var el = document.getElementById('cats');
+    el.innerHTML = '';
+    var all = document.createElement('button');
+    all.className = 'cat-pill' + (state.activeCat==='all'?' active':'');
+    all.textContent = 'Tutto';
+    all.onclick = function(){ state.activeCat='all'; save(); renderAll(); };
+    el.appendChild(all);
+    CATS.forEach(function(c){
+      var b = document.createElement('button');
+      b.className = 'cat-pill' + (state.activeCat===c.id?' active':'');
+      b.style.setProperty('--dotcolor', c.color);
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = c.color;
+      b.appendChild(dot);
+      b.appendChild(document.createTextNode(c.label));
+      b.onclick = function(){ state.activeCat = c.id; save(); renderAll(); };
+      el.appendChild(b);
+    });
+  }
+
+  // ---------- date helpers ----------
+  function todayISO(){ return new Date().toISOString(); }
+  function formatUpdated(iso){
+    if(!iso) return '';
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return '';
+    var startOfDay = function(dt){ return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime(); };
+    var diffDays = Math.round((startOfDay(new Date()) - startOfDay(d)) / 86400000);
+    if(diffDays === 0) return 'Aggiornato oggi';
+    if(diffDays === 1) return 'Aggiornato ieri';
+    var months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+    return 'Aggiornato il ' + d.getDate() + ' ' + months[d.getMonth()];
+  }
+
+  // ---------- progress text ----------
+  function progressText(e){
+    var c = catById(e.categoria);
+    if(c.progress==='ep'){
+      var s = e.stagione ? ('Stag. '+e.stagione) : '';
+      var ep = e.episodio ? ('Ep. '+e.episodio) : '';
+      return [s,ep].filter(Boolean).join(' · ');
+    }
+    if(c.progress==='cap'){
+      return e.capitolo ? ('Cap. '+e.capitolo) : '';
+    }
+    if(c.progress==='pag'){
+      return e.pagina ? ('Pag. '+e.pagina) : '';
+    }
+    return '';
+  }
+
+  // ---------- cover fetching ----------
+  var coverCache = {};
+  function fetchCover(entry){
+    var key = entry.categoria + ':' + entry.titolo.toLowerCase();
+    if(coverCache[key] !== undefined){
+      applyCover(entry, coverCache[key]);
+      return;
+    }
+    var c = catById(entry.categoria);
+    var p;
+    if(c.id === 'anime' || c.id === 'manga'){
+      var endpoint = c.id === 'anime' ? 'anime' : 'manga';
+      p = fetch('https://api.jikan.moe/v4/'+endpoint+'?q='+encodeURIComponent(entry.titolo)+'&limit=1')
+        .then(function(r){return r.json();}).then(function(d){
+          var item = d && d.data && d.data[0];
+          if(!item) return null;
+          return (item.images && item.images.jpg && (item.images.jpg.image_url || item.images.jpg.small_image_url)) || null;
+        });
+    } else if(c.id === 'serie' || c.id === 'animate'){
+      p = fetch('https://api.tvmaze.com/search/shows?q='+encodeURIComponent(entry.titolo))
+        .then(function(r){return r.json();}).then(function(d){
+          return (d && d[0] && d[0].show && d[0].show.image) ? d[0].show.image.medium : null;
+        });
+    } else if(c.id === 'film'){
+      p = fetch('https://itunes.apple.com/search?term='+encodeURIComponent(entry.titolo)+'&media=movie&limit=1')
+        .then(function(r){return r.json();}).then(function(d){
+          if(d && d.results && d.results[0] && d.results[0].artworkUrl100){
+            return d.results[0].artworkUrl100.replace('100x100bb','300x300bb');
+          }
+          return null;
+        });
+    } else if(c.id === 'libri'){
+      p = fetch('https://openlibrary.org/search.json?title='+encodeURIComponent(entry.titolo)+'&limit=1')
+        .then(function(r){return r.json();}).then(function(d){
+          if(d && d.docs && d.docs[0] && d.docs[0].cover_i){
+            return 'https://covers.openlibrary.org/b/id/'+d.docs[0].cover_i+'-M.jpg';
+          }
+          return null;
+        });
+    } else {
+      p = Promise.resolve(null);
+    }
+    p.then(function(url){
+      coverCache[key] = url;
+      applyCover(entry, url);
+    }).catch(function(){
+      coverCache[key] = null;
+    });
+  }
+  function applyCover(entry, url){
+    if(!url) return;
+    entry.cover = url;
+    save();
+    renderList();
+  }
+
+  // ---------- list rendering ----------
+  function renderList(){
+    var main = document.getElementById('list');
+    var entries;
+    if(state.view === 'watch'){
+      entries = state.entries.filter(function(e){
+        return e.wishlist && (state.activeCat==='all' || e.categoria===state.activeCat);
+      });
+    } else {
+      entries = state.entries.filter(function(e){
+        return !e.wishlist && e.anno === state.activeYear && (state.activeCat==='all' || e.categoria===state.activeCat);
+      });
+    }
+    document.getElementById('yearCount').textContent = entries.length ? (entries.length + (entries.length===1?' titolo':' titoli')) : '';
+
+    main.innerHTML = '';
+    if(entries.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty';
+      if(state.view === 'watch'){
+        empty.innerHTML = '<span class="serif">La lista è vuota</span><small>Tocca + per segnare qualcosa che vuoi guardare o leggere.</small>';
+      } else {
+        empty.innerHTML = '<span class="serif">'+state.activeYear+' è ancora una pagina bianca</span><small>Tocca + per segnare il primo anime, serie o libro di questo anno.</small>';
+      }
+      main.appendChild(empty);
+      return;
+    }
+
+    entries.slice().reverse().forEach(function(e){
+      var c = catById(e.categoria);
+      var row = document.createElement('div');
+      row.className = 'row';
+      var supp = addLongPress(row, function(){ confirmDeleteEntry(e); });
+      row.onclick = function(){
+        if(supp.value){ supp.value = false; return; }
+        openSheet(e);
+      };
+
+      var cover = document.createElement('div');
+      cover.className = 'cover';
+      cover.style.setProperty('--catcolor', c.color);
+      if(e.cover){
+        var img = document.createElement('img');
+        img.src = e.cover;
+        img.loading = 'lazy';
+        cover.appendChild(img);
+      } else {
+        cover.textContent = (e.titolo || '?').charAt(0).toUpperCase();
+        fetchCover(e);
+      }
+
+      var body = document.createElement('div');
+      body.className = 'row-body';
+      var title = document.createElement('div');
+      title.className = 'row-title';
+      title.textContent = e.titolo;
+      var meta = document.createElement('div');
+      meta.className = 'row-meta';
+      meta.style.setProperty('--catcolor', c.color);
+      var catname = document.createElement('span');
+      catname.className = 'catname';
+      catname.textContent = c.label;
+      meta.appendChild(catname);
+      var pt = progressText(e);
+      if(pt){
+        var sep = document.createElement('span');
+        sep.className = 'sep'; sep.textContent = '·';
+        meta.appendChild(sep);
+        var progSpan = document.createElement('span');
+        progSpan.textContent = pt;
+        meta.appendChild(progSpan);
+      }
+      body.appendChild(title);
+      body.appendChild(meta);
+      var upd = formatUpdated(e.updatedAt);
+      if(upd){
+        var updEl = document.createElement('div');
+        updEl.className = 'row-updated';
+        updEl.textContent = upd;
+        body.appendChild(updEl);
+      }
+
+      row.appendChild(cover);
+      row.appendChild(body);
+
+      if(!e.wishlist && c.progress === 'ep' && e.stato === 'corso'){
+        var bump = document.createElement('div');
+        bump.className = 'bump';
+        bump.textContent = '+';
+        bump.onclick = function(ev){
+          ev.stopPropagation();
+          e.episodio = (parseInt(e.episodio,10) || 0) + 1;
+          e.updatedAt = todayISO();
+          save();
+          renderList();
+        };
+        row.appendChild(bump);
+      }
+
+      if(!e.wishlist){
+        var mark = document.createElement('div');
+        mark.className = 'done-mark' + (e.stato==='fatto' ? ' on' : '');
+        row.appendChild(mark);
+      }
+
+      main.appendChild(row);
+    });
+  }
+
+  function renderAll(){
+    document.querySelectorAll('.view-tab').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-v') === state.view);
+    });
+    renderYears();
+    renderCats();
+    renderList();
+  }
+
+  // ---------- sheet (add / edit) ----------
+  var sheet = document.getElementById('sheet');
+  var backdrop = document.getElementById('backdrop');
+  var editingId = null;
+  var draft = {};
+
+  function openSheet(entry){
+    editingId = entry ? entry.id : null;
+    draft = entry ? {
+      titolo: entry.titolo, categoria: entry.categoria, stato: entry.stato,
+      stagione: entry.stagione, episodio: entry.episodio, capitolo: entry.capitolo, pagina: entry.pagina,
+      list: entry.wishlist ? 'watch' : 'diario'
+    } : { titolo:'', categoria: state.activeCat!=='all'?state.activeCat:'anime', stato:'corso', list: state.view };
+
+    var isDiario = draft.list === 'diario';
+    document.getElementById('sheetTitle').textContent = entry ? 'Modifica' : (isDiario ? 'Nuovo titolo' : 'Da vedere');
+    document.getElementById('fTitolo').value = draft.titolo || '';
+    document.getElementById('fCover').value = '';
+    document.getElementById('fProgressRow').style.display = isDiario ? 'flex' : 'none';
+    document.getElementById('fStatoField').style.display = isDiario ? 'block' : 'none';
+
+    document.getElementById('secondaryActions').style.display = entry ? 'flex' : 'none';
+    document.getElementById('btnDelete').style.display = entry ? 'block' : 'none';
+    document.getElementById('btnMove').style.display = (entry && entry.wishlist) ? 'block' : 'none';
+
+    renderCategoriaSeg();
+    renderStatoSeg();
+    renderProgressFields();
+
+    backdrop.classList.add('show');
+    sheet.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSheet(){
+    backdrop.classList.remove('show');
+    sheet.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  backdrop.onclick = closeSheet;
+  document.getElementById('btnCancel').onclick = closeSheet;
+
+  function renderCategoriaSeg(){
+    var el = document.getElementById('fCategoria');
+    el.innerHTML = '';
+    CATS.forEach(function(c){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = draft.categoria===c.id ? 'on' : '';
+      b.style.setProperty('--segcolor', c.color);
+      var dot = document.createElement('span');
+      dot.className='dot'; dot.style.background=c.color;
+      b.appendChild(dot);
+      b.appendChild(document.createTextNode(c.label));
+      b.onclick = function(){ draft.categoria = c.id; renderCategoriaSeg(); renderProgressFields(); };
+      el.appendChild(b);
+    });
+  }
+
+  function renderStatoSeg(){
+    var el = document.getElementById('fStato');
+    el.innerHTML = '';
+    [{id:'corso', label:'In corso'}, {id:'fatto', label:'Completato'}].forEach(function(s){
+      var b = document.createElement('button');
+      b.type='button';
+      b.className = draft.stato===s.id ? 'on' : '';
+      b.textContent = s.label;
+      b.onclick = function(){ draft.stato = s.id; renderStatoSeg(); };
+      el.appendChild(b);
+    });
+  }
+
+  function renderProgressFields(){
+    var row = document.getElementById('fProgressRow');
+    row.innerHTML = '';
+    var c = catById(draft.categoria);
+    if(c.progress === 'ep'){
+      row.appendChild(numField('Stagione','fStagione', draft.stagione));
+      row.appendChild(numField('Episodio','fEpisodio', draft.episodio));
+    } else if(c.progress === 'cap'){
+      row.appendChild(numField('Capitolo','fCapitolo', draft.capitolo));
+    } else if(c.progress === 'pag'){
+      row.appendChild(numField('Pagina','fPagina', draft.pagina));
+    }
+  }
+  function numField(label, id, val){
+    var f = document.createElement('div');
+    f.className = 'field';
+    var l = document.createElement('label'); l.textContent = label;
+    var i = document.createElement('input');
+    i.type = 'number'; i.inputMode='numeric'; i.id = id;
+    i.placeholder = '—';
+    if(val!==undefined && val!==null) i.value = val;
+    f.appendChild(l); f.appendChild(i);
+    return f;
+  }
+
+  document.getElementById('fabAdd').onclick = function(){ openSheet(null); };
+
+  document.getElementById('btnSave').onclick = function(){
+    var titolo = document.getElementById('fTitolo').value.trim();
+    if(!titolo){ document.getElementById('fTitolo').focus(); return; }
+    var c = catById(draft.categoria);
+    var coverVal = document.getElementById('fCover').value.trim();
+    var isDiario = draft.list === 'diario';
+    var payload = {
+      titolo: titolo,
+      categoria: draft.categoria,
+      updatedAt: todayISO(),
+      wishlist: !isDiario
+    };
+    if(isDiario){
+      payload.stato = draft.stato || 'corso';
+      payload.anno = state.activeYear;
+      if(c.progress==='ep'){
+        var st = document.getElementById('fStagione'), ep = document.getElementById('fEpisodio');
+        if(st && st.value) payload.stagione = st.value;
+        if(ep && ep.value) payload.episodio = ep.value;
+      } else if(c.progress==='cap'){
+        var cp = document.getElementById('fCapitolo');
+        if(cp && cp.value) payload.capitolo = cp.value;
+      } else if(c.progress==='pag'){
+        var pg = document.getElementById('fPagina');
+        if(pg && pg.value) payload.pagina = pg.value;
+      }
+    } else {
+      payload.anno = null;
+    }
+    if(coverVal) payload.cover = coverVal;
+
+    if(editingId){
+      var existing = state.entries.find(function(x){return x.id===editingId;});
+      var changedIdentity = existing.titolo !== payload.titolo || existing.categoria !== payload.categoria;
+      Object.assign(existing, payload);
+      if(!coverVal && changedIdentity) existing.cover = null;
+    } else {
+      payload.id = 'e' + Date.now() + Math.random().toString(36).slice(2,7);
+      state.entries.push(payload);
+    }
+    save();
+    closeSheet();
+    renderAll();
+  };
+
+  document.getElementById('btnMove').onclick = function(){
+    if(!editingId) return;
+    var existing = state.entries.find(function(x){return x.id===editingId;});
+    existing.wishlist = false;
+    existing.anno = state.activeYear;
+    existing.stato = 'corso';
+    existing.updatedAt = todayISO();
+    state.view = 'diario';
+    save();
+    closeSheet();
+    renderAll();
+  };
+
+  document.getElementById('btnDelete').onclick = function(){
+    if(!editingId) return;
+    state.entries = state.entries.filter(function(e){ return e.id !== editingId; });
+    save();
+    closeSheet();
+    renderAll();
+  };
+
+  renderAll();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
